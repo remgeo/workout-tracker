@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.2">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Workout Log App&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.tab { display: none; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.tab.active { display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.exercise { margin-bottom: 20px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.set { display: flex; align-items: center; margin-bottom: 10px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.set label { margin-right: 10px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.reps { display: flex; gap: 5px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.reps button { padding: 5px 10px; border: 1px solid #ccc; background: #fff; cursor: pointer; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.reps button.selected { background: #007bff; color: #fff; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>button { margin-right: 10px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#history-list { list-style: none; padding: 0; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#history-list li { margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.history-details { display: none; margin-top: 10px; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h1&gt;Workout Log&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button onclick="toggleDay('day1')"&gt;Day 1&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button onclick="toggleDay('day2')"&gt;Day 2&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button onclick="showHistory()"&gt;History&lt;/button&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="day1" class="tab active"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;Day 1&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;form id="day1-form"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="exercise"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3&gt;Squats: Barbell Squat&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 1 Weight: &lt;input type="number" name="squats-set1-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="squats-set1-reps"&gt;&lt;button&gt;4&lt;/button&gt;&lt;button&gt;5&lt;/button&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 2 Weight: &lt;input type="number" name="squats-set2-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="squats-set2-reps"&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;button&gt;11&lt;/button&gt;&lt;button&gt;12&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Repeat similar structure for other exercises in Day 1 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="exercise"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3&gt;Hip Hinges: Deadlift&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 1 Weight: &lt;input type="number" name="deadlift-set1-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="deadlift-set1-reps"&gt;&lt;button&gt;4&lt;/button&gt;&lt;button&gt;5&lt;/button&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 2 Weight: &lt;input type="number" name="deadlift-set2-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="deadlift-set2-reps"&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;button&gt;11&lt;/button&gt;&lt;button&gt;12&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="exercise"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3&gt;Vertical Pulls: Pull-ups&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 1 Weight: &lt;input type="number" name="pullups-set1-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="pullups-set1-reps"&gt;&lt;button&gt;4&lt;/button&gt;&lt;button&gt;5&lt;/button&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 2 Weight: &lt;input type="number" name="pullups-set2-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="pullups-set2-reps"&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;button&gt;11&lt;/button&gt;&lt;button&gt;12&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="exercise"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3&gt;Biceps: Curls&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 1 Weight: &lt;input type="number" name="curls-set1-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="curls-set1-reps"&gt;&lt;button&gt;4&lt;/button&gt;&lt;button&gt;5&lt;/button&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 2 Weight: &lt;input type="number" name="curls-set2-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="curls-set2-reps"&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;button&gt;11&lt;/button&gt;&lt;button&gt;12&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="exercise"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3&gt;Triceps: Skull-crushers&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 1 Weight: &lt;input type="number" name="skullcrushers-set1-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="skullcrushers-set1-reps"&gt;&lt;button&gt;4&lt;/button&gt;&lt;button&gt;5&lt;/button&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 2 Weight: &lt;input type="number" name="skullcrushers-set2-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="skullcrushers-set2-reps"&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;button&gt;11&lt;/button&gt;&lt;button&gt;12&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="exercise"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3&gt;Calves: Calf Raises&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 1 Weight: &lt;input type="number" name="calfraises-set1-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="calfraises-set1-reps"&gt;&lt;button&gt;4&lt;/button&gt;&lt;button&gt;5&lt;/button&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 2 Weight: &lt;input type="number" name="calfraises-set2-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="calfraises-set2-reps"&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;button&gt;11&lt;/button&gt;&lt;button&gt;12&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button type="button" onclick="saveWorkout('day1')"&gt;Save Workout&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/form&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="day2" class="tab"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;Day 2&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;form id="day2-form"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="exercise"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3&gt;Horizontal Pushes: Bench Press&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 1 Weight: &lt;input type="number" name="benchpress-set1-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="benchpress-set1-reps"&gt;&lt;button&gt;4&lt;/button&gt;&lt;button&gt;5&lt;/button&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 2 Weight: &lt;input type="number" name="benchpress-set2-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="benchpress-set2-reps"&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;button&gt;11&lt;/button&gt;&lt;button&gt;12&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="exercise"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3&gt;Vertical Pushes: Seated Dumbbell Press&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 1 Weight: &lt;input type="number" name="dumbbellpress-set1-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="dumbbellpress-set1-reps"&gt;&lt;button&gt;4&lt;/button&gt;&lt;button&gt;5&lt;/button&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 2 Weight: &lt;input type="number" name="dumbbellpress-set2-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="dumbbellpress-set2-reps"&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;button&gt;11&lt;/button&gt;&lt;button&gt;12&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="exercise"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3&gt;Horizontal Pulls: Cable Rows&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 1 Weight: &lt;input type="number" name="cablerows-set1-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="cablerows-set1-reps"&gt;&lt;button&gt;4&lt;/button&gt;&lt;button&gt;5&lt;/button&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 2 Weight: &lt;input type="number" name="cablerows-set2-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="cablerows-set2-reps"&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;button&gt;11&lt;/button&gt;&lt;button&gt;12&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="exercise"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3&gt;Abs: Hanging Leg Lifts&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 1: &lt;input type="number" name="leglifts-set1-reps" placeholder="Reps"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 2: &lt;input type="number" name="leglifts-set2-reps" placeholder="Reps"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="exercise"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3&gt;Rear Delts: Cable Pulls&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 1 Weight: &lt;input type="number" name="cablepulls-set1-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="cablepulls-set1-reps"&gt;&lt;button&gt;4&lt;/button&gt;&lt;button&gt;5&lt;/button&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="set"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label&gt;Set 2 Weight: &lt;input type="number" name="cablepulls-set2-weight"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;Reps: &lt;div class="reps" data-set="cablepulls-set2-reps"&gt;&lt;button&gt;6&lt;/button&gt;&lt;button&gt;7&lt;/button&gt;&lt;button&gt;8&lt;/button&gt;&lt;button&gt;9&lt;/button&gt;&lt;button&gt;10&lt;/button&gt;&lt;button&gt;11&lt;/button&gt;&lt;button&gt;12&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button type="button" onclick="saveWorkout('day2')"&gt;Save Workout&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/form&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="history" class="tab"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;History&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;ul id="history-list"&gt;&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="hideHistory()"&gt;Back&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function toggleDay(day) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll('.tab').forEach(tab =&gt; tab.classList.remove('active'));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById(day).classList.add('active');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.querySelectorAll('.reps').forEach(repsDiv =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>repsDiv.querySelectorAll('button').forEach(btn =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>btn.onclick = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>repsDiv.querySelectorAll('button').forEach(b =&gt; b.classList.remove('selected'));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>btn.classList.add('selected');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function saveWorkout(day) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const form = document.getElementById(day + '-form');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const data = { day, date: new Date().toISOString(), exercises: {} };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const inputs = form.querySelectorAll('input[type="number"]');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>inputs.forEach(input =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (input.value) data.exercises[input.name] = input.value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll('.reps').forEach(repsDiv =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const selected = repsDiv.querySelector('.selected');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (selected) data.exercises[repsDiv.dataset.set] = selected.textContent;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let workouts = JSON.parse(localStorage.getItem('workouts') || '[]');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>workouts.push(data);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>localStorage.setItem('workouts', JSON.stringify(workouts));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>alert('Workout saved!');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>form.reset();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll('.selected').forEach(s =&gt; s.classList.remove('selected'));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function showHistory() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll('.tab').forEach(tab =&gt; tab.classList.remove('active'));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('history').classList.add('active');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const workouts = JSON.parse(localStorage.getItem('workouts') || '[]');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const list = document.getElementById('history-list');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>list.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>workouts.forEach((workout, index) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const li = document.createElement('li');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>li.innerHTML = `</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;${workout.day.toUpperCase()} - ${new Date(workout.date).toLocaleString()}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button onclick="toggleDetails(${index})"&gt;View Details&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button onclick="deleteWorkout(${index})"&gt;Delete&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="details-${index}" class="history-details"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>list.appendChild(li);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function toggleDetails(index) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const details = document.getElementById(`details-${index}`);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const workout = JSON.parse(localStorage.getItem('workouts'))[index];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (details.style.display === 'block') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>details.style.display = 'none';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let html = '&lt;ul&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let key in workout.exercises) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>html += `&lt;li&gt;${key}: ${workout.exercises[key]}&lt;/li&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>html += '&lt;/ul&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>details.innerHTML = html;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>details.style.display = 'block';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function deleteWorkout(index) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let workouts = JSON.parse(localStorage.getItem('workouts'));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>workouts.splice(index, 1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>localStorage.setItem('workouts', JSON.stringify(workouts));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>showHistory();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function hideHistory() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll('.tab').forEach(tab =&gt; tab.classList.remove('active'));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('day1').classList.add('active');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
