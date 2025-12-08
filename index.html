@@ -105,4 +105,125 @@
       </div>
 
       <!-- History -->
-      <div id
+      <div id="history" class="hidden">
+        <h2 class="text-2xl font-bold mb-6">Workout History</h2>
+        <div id="history-list" class="space-y-4"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Complete Button -->
+  <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-md">
+    <button onclick="completeWorkout()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 rounded-full shadow-2xl flex items-center justify-center gap-3 text-lg transition">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+      Complete Workout
+    </button>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "workoutLogV2";
+    let currentDay = "day1";
+
+    // Helper to create rep circles quickly
+    const repRanges = {
+      squats: {1: [4,5,6,7,8,9,10], 2: [6,7,8,9,10,11,12]},
+      deadlift: {1: [4,5,6,7,8,9,10], 2: [6,7,8,9,10,11,12]},
+      pullups: {1: [4,5,6,7,8,9,10], 2: [6,7,8,9,10,11,12]},
+      curls: {1: [4,5,6,7,8,9,10], 2: [6,7,8,9,10,11,12]},
+      skullcrushers: {1: [4,5,6,7,8,9,10], 2: [6,7,8,9,10,11,12]},
+      calfraises: {1: [4,5,6,7,8,9,10], 2: [6,7,8,9,10,11,12]},
+      benchpress: {1: [4,5,6,7,8,9,10], 2: [6,7,8,9,10,11,12]},
+      seatedpress: {1: [4,5,6,7,8,9,10], 2: [6,7,8,9,10,11,12]},
+      cablerows: {1: [4,5,6,7,8,9,10], 2: [6,7,8,9,10,11,12]},
+      leglifts: {1: [], 2: []}, // reps only, no weight
+      cablepulls: {1: [4,5,6,7,8,9,10], 2: [6,7,8,9,10,11,12]}
+    };
+
+    // Full exercise list
+    const exercises = ["squats","deadlift","pullups","curls","skullcrushers","calfraises","benchpress","seatedpress","cablerows","leglifts","cablepulls"];
+
+    function setTab(tab) {
+      ["day1","day2","history"].forEach(t => document.getElementById(t).classList.add("hidden"));
+      document.getElementById(tab).classList.remove("hidden");
+      document.querySelectorAll("button[id^='tab-']").forEach(b => b.className = b.id === "tab-"+tab ? "flex-1 py-4 font-semibold text-blue-600 border-b-2 border-blue-600" : "flex-1 py-4 font-medium text-gray-500 border-b-2 border-transparent");
+      if (tab !== "history") { currentDay = tab; loadPreviousWeights(); renderCompleteButton(); }
+      if (tab === "history") renderHistory();
+    }
+
+    function loadPreviousWeights() {
+      const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      const last = logs.slice().reverse().find(l => l.day === currentDay);
+      if (!last) return;
+      last.data.forEach(ex => {
+        if (ex.set1?.weight) document.querySelector(`[data-ex="${ex.id}"][data-set="1"]`)?.setAttribute("value", ex.set1.weight);
+        if (ex.set2?.weight) document.querySelector(`[data-ex="${ex.id}"][data-set="2"]`)?.setAttribute("value", ex.set2.weight);
+        if (ex.set1?.reps) selectRep(ex.id+"-1", ex.set1.reps);
+        if (ex.set2?.reps) selectRep(ex.id+"-2", ex.set2.reps);
+      });
+    }
+
+    function selectRep(containerId, value) {
+      const container = document.querySelector(`[data-reps="${containerId}"]`);
+      if (!container) return;
+      container.querySelectorAll(".rep-circle").forEach(c => c.classList.toggle("selected", c.dataset.rep == value));
+    }
+
+    document.addEventListener("click", e => {
+      if (e.target.matches(".rep-circle")) {
+        const container = e.target.closest("[data-reps]");
+        container.querySelectorAll(".rep-circle").forEach(c => c.classList.remove("selected"));
+        e.target.classList.add("selected");
+      }
+    });
+
+    function completeWorkout() {
+      const data = [];
+      exercises.forEach(ex => {
+        const w1 = document.querySelector(`[data-ex="${ex}"][data-set="1"]`)?.value.trim() || null;
+        const w2 = document.querySelector(`[data-ex="${ex}"][data-set="2"]`)?.value.trim() || null;
+        const r1 = document.querySelector(`[data-reps="${ex}-1"] .selected`)?.dataset.rep || null;
+        const r2 = document.querySelector(`[data-reps="${ex}-2"] .selected`)?.dataset.rep || null;
+        if (w1 || w2 || r1 || r2) {
+          data.push({ id: ex, set1: {weight: w1, reps: r1}, set2: {weight: w2, reps: r2} });
+        }
+      });
+
+      const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      logs.push({ day: currentDay, date: new Date().toISOString(), data });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+
+      alert("Workout completed and saved!");
+      setTab("history");
+    }
+
+    function renderHistory() {
+      const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]").reverse();
+      const list = document.getElementById("history-list");
+      list.innerHTML = logs.length ? logs.map((log, i) => `
+        <div class="bg-white rounded-2xl p-5 shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-bold text-lg">${log.day === "day1" ? "Day 1" : "Day 2"}</p>
+              <p class="text-sm text-gray-600">${new Date(log.date).toLocaleString()}</p>
+            </div>
+            <button onclick="deleteLog(${logs.length-1-i})" class="text-red-600 text-sm font-medium">Delete</button>
+          </div>
+        </div>
+      `).join("") : "<p class='text-center text-gray-500'>No workouts yet. Start lifting!</p>";
+    }
+
+    function deleteLog(index) {
+      if (confirm("Delete this workout permanently?")) {
+        const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        logs.splice(index, 1);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+        renderHistory();
+      }
+    }
+
+    // Init
+    loadPreviousWeights();
+    renderHistory();
+  </script>
+</body>
+</html>
