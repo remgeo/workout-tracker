@@ -62,8 +62,16 @@
       margin-top: 10px;
     }
 
-    /* small layout helpers */
-    .rep-row { display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; }
+    /* Collapsible exercise list */
+    .accordion { border-radius: 12px; overflow: hidden; }
+    .accordion-item { border-bottom: 1px solid #eef2f7; }
+    .accordion-button { width:100%; text-align:left; padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:12px; background:transparent; border:0; cursor:pointer; }
+    .accordion-button:hover { background:#fbfdff; }
+    .accordion-summary { font-weight:600; }
+    .accordion-details { padding: 10px 14px 16px 14px; display:none; }
+    .accordion-details.open { display:block; }
+
+    .core-header, .iso-header { font-size: 13px; color:#6b7280; font-weight:700; padding:8px 2px; }
   </style>
 </head>
 <body class="min-h-screen bg-gray-50">
@@ -436,8 +444,11 @@
     const STORAGE_KEY = 'workoutLogFinal';
     let currentDay = 'day1';
 
-    // chart instances so we can destroy them when re-rendering
+    // chart instances so we can destroy them when re-rendering or collapsing
     window._exerciseCharts = window._exerciseCharts || {};
+
+    // explicit order of exercises — first 3 -> Core, rest -> Isolation
+    const EXERCISE_ORDER = ['squats','deadlift','pullups','curls','skullcrushers','calfraises','benchpress','seatedpress','cablerows','leglifts','cablepulls'];
 
     function setTab(tab) {
       document.getElementById('day1').classList.toggle('hidden', tab !== 'day1');
@@ -465,9 +476,7 @@
     // mark recommended reps per set:
     // - Set 1 (container ending with -1): recommended 6..8
     // - Set 2 (container ending with -2): recommended 8..10
-    // - fallback: 6..10
     function markRecommendedReps() {
-      // clear previous recommended classes and reapply per container
       document.querySelectorAll('[data-reps]').forEach(container => {
         const containerId = container.dataset.reps || '';
         const isSet1 = containerId.endsWith('-1');
@@ -481,7 +490,6 @@
           } else if (isSet2) {
             if (!isNaN(r) && r >= 8 && r <= 10) el.classList.add('recommended');
           } else {
-            // fallback
             if (!isNaN(r) && r >= 6 && r <= 10) el.classList.add('recommended');
           }
         });
@@ -517,12 +525,9 @@
       }
     });
 
-    // collects exercise ids used in the UI for saving
-    const EXERCISE_IDS = ['squats','deadlift','pullups','curls','skullcrushers','calfraises','benchpress','seatedpress','cablerows','leglifts','cablepulls'];
-
     function completeWorkout() {
       const data = [];
-      EXERCISE_IDS.forEach(id => {
+      EXERCISE_ORDER.forEach(id => {
         const w1 = document.querySelector(`[data-ex="${id}"][data-set="1"]`)?.value.trim() || null;
         const w2 = document.querySelector(`[data-ex="${id}"][data-set="2"]`)?.value.trim() || null;
         const r1 = document.querySelector(`[data-reps="${id}-1"] .selected`)?.dataset.rep || null;
@@ -543,7 +548,9 @@
       setTab('history');
     }
 
-    // Render history list and charts (simplified & faster)
+    // Render history as collapsible exercise progress under Core / Isolation
+    const MAX_POINTS = 8; // limit points per chart
+
     function renderHistory() {
       const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]').reverse();
       const list = document.getElementById('history-list');
@@ -554,23 +561,151 @@
         return;
       }
 
-      // simple log cards
+      // show recent session cards (compact)
+      const sessionsContainer = document.createElement('div');
+      sessionsContainer.className = 'space-y-3';
       logs.forEach((l, idx) => {
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl p-5 shadow-sm';
+        card.className = 'bg-white rounded-2xl p-4 shadow-sm flex justify-between items-start';
         card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="font-bold text-lg">${l.day==='day1'?'Day 1':'Day 2'}</p>
-              <p class="text-sm text-gray-600">${new Date(l.date).toLocaleString()}</p>
-              <p class="text-xs text-gray-500 mt-1">${l.data.length} exercises</p>
-            </div>
-            <button data-log-index="${logs.length-1-idx}" class="delete-log text-red-600 text-sm font-medium">Delete</button>
+          <div>
+            <p class="font-bold text-sm">${l.day==='day1'?'Day 1':'Day 2'}</p>
+            <p class="text-xs text-gray-600">${new Date(l.date).toLocaleString()}</p>
           </div>
+          <div class="text-xs text-gray-500">${l.data.length} exercises</div>
         `;
-        list.appendChild(card);
+        sessionsContainer.appendChild(card);
+      });
+      list.appendChild(sessionsContainer);
+
+      // Build grouped time series per exercise (oldest->newest)
+      const grouped = {}; // id -> {labels:[], weights:[], reps:[]}
+      const oldToNew = logs.slice().reverse();
+      oldToNew.forEach(log => {
+        const t = new Date(log.date);
+        const label = t.toLocaleDateString();
+        log.data.forEach(ex => {
+          const id = ex.id;
+          const weightRaw = (ex.set1?.weight && ex.set1.weight.trim()) ? ex.set1.weight.trim() : ((ex.set2?.weight && ex.set2.weight.trim()) ? ex.set2.weight.trim() : null);
+          const repsRaw = (ex.set1?.reps) ? ex.set1.reps : ((ex.set2?.reps) ? ex.set2.reps : null);
+          const weight = weightRaw ? Number(weightRaw) : null;
+          const reps = repsRaw ? Number(repsRaw) : null;
+          if (!grouped[id]) grouped[id] = {labels: [], weights: [], reps: []};
+          grouped[id].labels.push(label);
+          grouped[id].weights.push(weight);
+          grouped[id].reps.push(reps);
+        });
       });
 
+      // create accordion grouped by Core and Isolation
+      const coreIds = EXERCISE_ORDER.slice(0,3);
+      const isolationIds = EXERCISE_ORDER.slice(3);
+
+      // helper to create accordion for a group
+      function createGroupSection(title, ids) {
+        const container = document.createElement('div');
+        const header = document.createElement('div');
+        header.className = title === 'Core' ? 'core-header' : 'iso-header';
+        header.textContent = title;
+        container.appendChild(header);
+
+        const acc = document.createElement('div');
+        acc.className = 'accordion bg-white rounded-2xl shadow-sm';
+
+        ids.forEach(id => {
+          const item = document.createElement('div');
+          item.className = 'accordion-item';
+
+          const btn = document.createElement('button');
+          btn.className = 'accordion-button';
+          btn.type = 'button';
+          btn.innerHTML = `
+            <div class="accordion-summary">${formatExerciseId(id)}</div>
+            <div class="text-xs text-gray-500">Show progress</div>
+          `;
+
+          const details = document.createElement('div');
+          details.className = 'accordion-details';
+          // small placeholder for chart
+          const canvas = document.createElement('canvas');
+          canvas.id = `chart-${id}`;
+          canvas.className = 'history-chart';
+          details.appendChild(canvas);
+
+          btn.addEventListener('click', async () => {
+            const open = details.classList.toggle('open');
+            // if opening and chart not created, create chart lazily
+            if (open && !window._exerciseCharts[id]) {
+              // get series (oldest->newest) and take last MAX_POINTS
+              const series = grouped[id] || {labels:[], weights:[], reps:[]};
+              const L = series.labels.length;
+              const start = Math.max(0, L - MAX_POINTS);
+              const labels = series.labels.slice(start);
+              const weights = series.weights.slice(start);
+              const reps = series.reps.slice(start);
+
+              // if no numeric data, show small message
+              const hasAny = (weights || []).some(x => x !== null) || (reps || []).some(x => x !== null);
+              if (!hasAny) {
+                canvas.style.display = 'none';
+                const msg = document.createElement('div');
+                msg.className = 'text-xs text-gray-500';
+                msg.textContent = 'No data for this exercise yet.';
+                details.appendChild(msg);
+                return;
+              }
+
+              const ctx = canvas.getContext('2d');
+              // small fast chart
+              const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                  labels,
+                  datasets: [
+                    { label: 'Weight', data: weights, yAxisID: 'y', borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', tension:0.2, spanGaps:true, pointRadius:2 },
+                    { label: 'Reps', data: reps, yAxisID: 'y1', borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.08)', tension:0.2, spanGaps:true, pointRadius:2 }
+                  ]
+                },
+                options: {
+                  responsive:true, maintainAspectRatio:false,
+                  interaction:{mode:'index', intersect:false}, plugins:{legend:{position:'top'}},
+                  scales:{ x:{ticks:{autoSkip:true}}, y:{type:'linear', display:true, position:'left'}, y1:{type:'linear', display:true, position:'right', grid:{drawOnChartArea:false}} }
+                }
+              });
+
+              window._exerciseCharts[id] = chart;
+            } else if (!open) {
+              // collapsing: destroy chart to free memory and allow re-create later
+              if (window._exerciseCharts[id]) {
+                window._exerciseCharts[id].destroy();
+                delete window._exerciseCharts[id];
+                // remove canvas and replace with a fresh one for next open
+                details.innerHTML = '';
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = `chart-${id}`;
+                newCanvas.className = 'history-chart';
+                details.appendChild(newCanvas);
+              }
+            }
+          });
+
+          item.appendChild(btn);
+          item.appendChild(details);
+          acc.appendChild(item);
+        });
+
+        container.appendChild(acc);
+        return container;
+      }
+
+      // build sections
+      const coreSection = createGroupSection('Core', coreIds);
+      const isoSection = createGroupSection('Isolation', isolationIds);
+
+      list.appendChild(coreSection);
+      list.appendChild(isoSection);
+
+      // attach delete handlers for session cards (if present)
       list.querySelectorAll('.delete-log').forEach(btn => {
         btn.addEventListener('click', (ev) => {
           const i = Number(ev.currentTarget.dataset.logIndex);
@@ -582,135 +717,6 @@
           }
         });
       });
-
-      // Charting: group and render but limit points and make charts compact
-      renderExerciseCharts(logs.reverse()); // oldest -> newest
-    }
-
-    // Build grouped series and render Chart.js charts for each exercise
-    // Simplifications applied:
-    // - Limit to last MAX_POINTS points per exercise (reduces processing & visual clutter)
-    // - Use compact chart height (CSS)
-    const MAX_POINTS = 8; // keep the most recent 8 sessions per exercise
-
-    function renderExerciseCharts(logsOldToNew) {
-      // destroy existing charts
-      Object.values(window._exerciseCharts).forEach(c => c.destroy?.());
-      window._exerciseCharts = {};
-
-      // Group by exercise id
-      const grouped = {}; // id -> {labels:[], weights:[], reps:[]}
-      logsOldToNew.forEach(log => {
-        const t = new Date(log.date);
-        const label = t.toLocaleDateString();
-        log.data.forEach(ex => {
-          const id = ex.id;
-          const weightRaw = (ex.set1?.weight && ex.set1.weight.trim()) ? ex.set1.weight.trim() : ((ex.set2?.weight && ex.set2.weight.trim()) ? ex.set2.weight.trim() : null);
-          const repsRaw = (ex.set1?.reps) ? ex.set1.reps : ((ex.set2?.reps) ? ex.set2.reps : null);
-          const weight = weightRaw ? Number(weightRaw) : null;
-          const reps = repsRaw ? Number(repsRaw) : null;
-
-          if (!grouped[id]) grouped[id] = {labels: [], weights: [], reps: []};
-          grouped[id].labels.push(label);
-          grouped[id].weights.push(weight);
-          grouped[id].reps.push(reps);
-        });
-      });
-
-      // create compact charts container
-      const wrapper = document.createElement('div');
-      wrapper.className = 'space-y-4 mt-6';
-      const title = document.createElement('h3');
-      title.className = 'text-lg font-bold';
-      title.textContent = 'Exercise progress (last ' + MAX_POINTS + ' sessions)';
-      wrapper.appendChild(title);
-
-      // For each exercise group, render a compact chart but limit points
-      Object.entries(grouped).forEach(([id, series]) => {
-        // Take last MAX_POINTS entries
-        const L = series.labels.length;
-        if (L === 0) return;
-        const start = Math.max(0, L - MAX_POINTS);
-        const labels = series.labels.slice(start);
-        const weights = series.weights.slice(start);
-        const reps = series.reps.slice(start);
-
-        // Skip exercises with no numeric data
-        const hasAny = weights.some(x => x !== null) || reps.some(x => x !== null);
-        if (!hasAny) return;
-
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl p-4 shadow-sm';
-
-        const header = document.createElement('div');
-        header.className = 'flex items-center justify-between';
-        const name = document.createElement('div');
-        name.innerHTML = `<p class="font-semibold">${formatExerciseId(id)}</p><p class="text-xs text-gray-500">${labels.length} points</p>`;
-        header.appendChild(name);
-        card.appendChild(header);
-
-        const canvas = document.createElement('canvas');
-        canvas.id = `chart-${id}`;
-        canvas.className = 'history-chart';
-        card.appendChild(canvas);
-        wrapper.appendChild(card);
-
-        const ctx = canvas.getContext('2d');
-
-        // create smaller, faster line chart: fewer points, smaller point radius
-        const chart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels,
-            datasets: [
-              {
-                label: 'Weight',
-                data: weights,
-                yAxisID: 'y',
-                borderColor: '#2563eb',
-                backgroundColor: 'rgba(37,99,235,0.08)',
-                tension: 0.3,
-                spanGaps: true,
-                pointRadius: 2,
-                pointHoverRadius: 4
-              },
-              {
-                label: 'Reps',
-                data: reps,
-                yAxisID: 'y1',
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16,185,129,0.08)',
-                tension: 0.3,
-                spanGaps: true,
-                pointRadius: 2,
-                pointHoverRadius: 4
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: { legend: { position: 'top' } },
-            scales: {
-              x: { ticks: { maxRotation: 0, autoSkip: true } },
-              y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Weight' } },
-              y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Reps' } }
-            }
-          }
-        });
-
-        window._exerciseCharts[id] = chart;
-      });
-
-      const listContainer = document.getElementById('history-list');
-      // remove existing chart area (if any) then append new wrapper
-      const existingChartArea = listContainer.querySelector('.exercise-chart-area');
-      if (existingChartArea) existingChartArea.remove();
-      const chartArea = document.createElement('div');
-      chartArea.className = 'exercise-chart-area';
-      chartArea.appendChild(wrapper);
-      listContainer.appendChild(chartArea);
     }
 
     // Pretty label conversion for exercise id -> display
@@ -747,8 +753,6 @@
       el.setAttribute('tabindex', '0');
     });
 
-    // re-run recommended marking after DOM changes (if any)
-    // For now the DOM is static; if you dynamically add reps later, call markRecommendedReps()
   </script>
 </body>
 </html>
