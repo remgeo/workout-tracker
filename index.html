@@ -5,27 +5,68 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Workout Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js for history graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
+    /* Rep circles styling (explicit CSS so it works without @apply) */
     .rep-circle {
-      @apply w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium cursor-pointer transition-all duration-200 border-2;
+      width: 44px;
+      height: 44px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      border: 2px solid #e5e7eb;
       background: #f3f4f6;
       color: #9ca3af;
-      border-color: #d1d5db;
+      user-select: none;
     }
-    .rep-circle.selected {
-      @apply bg-blue-600 text-white border-blue-600 shadow-lg scale-105;
-    }
+
+    /* Slight hover state for non-selected */
     .rep-circle:hover:not(.selected) {
-      @apply border-blue-400 bg-blue-50 text-blue-600;
+      border-color: #60a5fa;
+      background: #eff6ff;
+      color: #2563eb;
+      transform: translateY(-2px);
     }
-    .history-details {
-      @apply mt-3 p-4 bg-gray-50 rounded-xl text-sm space-y-2;
+
+    /* Selected look - white inner circle with a soft blue outer ring */
+    .rep-circle.selected {
+      background: #ffffff;
+      color: #111827; /* dark number */
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 8px rgba(96,165,250,0.12);
+      transform: scale(1.03);
+    }
+
+    /* Recommended rep numbers (visually a bit bolder by default) */
+    .rep-circle.recommended {
+      font-weight: 700;
+      color: #374151;
+    }
+
+    /* Tiny layout helpers used elsewhere */
+    .rep-row { display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; }
+    .reps-wrap { display:flex; gap:0.5rem; flex-wrap:wrap; }
+
+    /* Small tweaks to chart containers */
+    .history-chart {
+      width: 100%;
+      max-width: 560px;
+      height: 220px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body class="min-h-screen bg-gray-50">
 
-  <!-- Navigation -->
+  <!-- Tabs -->
   <nav class="bg-white shadow-sm sticky top-0 z-50">
     <div class="max-w-md mx-auto flex">
       <button onclick="setTab('day1')" id="tab-day1" class="flex-1 py-4 font-semibold text-blue-600 border-b-2 border-blue-600">Day 1</button>
@@ -41,6 +82,7 @@
         <h1 class="text-3xl font-bold text-gray-900">Day 1</h1>
         <p class="text-gray-600">Track your weights & reps.</p>
       </div>
+
       <div class="text-center mb-6">
         <span class="bg-blue-100 text-blue-800 px-4 py-1.5 rounded-full text-sm font-bold tracking-wider">| CORE |</span>
       </div>
@@ -53,8 +95,46 @@
           <div>
             <p class="font-medium mb-3 text-gray-700">SET 1</p>
             <div class="flex items-center gap-4 flex-wrap">
-              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="squats" data-set="1" data-field="weight">
-              <div class="flex gap-3 flex-wrap" data-reps="squats-1">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" data-ex="squats" data-set="1">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="squats-1">
+                <div class="rep-circle" data-rep="4">4</div>
+                <div class="rep-circle" data-rep="5">5</div>
+                <div class="rep-circle" data-rep="6">6</div>
+                <div class="rep-circle" data-rep="7">7</div>
+                <div class="rep-circle" data-rep="8">8</div>
+                <div class="rep-circle" data-rep="9">9</div>
+                <div class="rep-circle" data-rep="10">10</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 2</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" data-ex="squats" data-set="2">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="squats-2">
+                <div class="rep-circle" data-rep="6">6</div>
+                <div class="rep-circle" data-rep="7">7</div>
+                <div class="rep-circle" data-rep="8">8</div>
+                <div class="rep-circle" data-rep="9">9</div>
+                <div class="rep-circle" data-rep="10">10</div>
+                <div class="rep-circle" data-rep="11">11</div>
+                <div class="rep-circle" data-rep="12">12</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Deadlift -->
+      <section class="bg-white rounded-2xl shadow-sm p-6">
+        <h2 class="text-xl font-bold mb-1">Hip Hinges</h2>
+        <p class="text-sm text-gray-600 mb-5">Deadlift</p>
+        <div class="space-y-8">
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 1</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="deadlift" data-set="1">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="deadlift-1">
                 <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
                 <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
               </div>
@@ -63,8 +143,8 @@
           <div>
             <p class="font-medium mb-3 text-gray-700">SET 2</p>
             <div class="flex items-center gap-4 flex-wrap">
-              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="squats" data-set="2" data-field="weight">
-              <div class="flex gap-3 flex-wrap" data-reps="squats-2">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="deadlift" data-set="2">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="deadlift-2">
                 <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
                 <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
               </div>
@@ -73,71 +153,263 @@
         </div>
       </section>
 
-      <!-- Deadlift, Pull-ups, Curls, Skull-crushers, Calf Raises (same pattern) -->
-      <!-- ... (all exercises from previous version are included below) ... -->
-
-      <!-- [All other Day 1 exercises — same structure as Squats] -->
-      <!-- Deadlift -->
-      <section class="bg-white rounded-2xl shadow-sm p-6">
-        <h2 class="text-xl font-bold mb-1">Hip Hinges</h2>
-        <p class="text-sm text-gray-600 mb-5">Deadlift</p>
-        <div class="space-y-8">
-          <div><p class="font-medium mb-3 text-gray-700">SET 1</p><div class="flex items-center gap-4 flex-wrap">
-            <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="deadlift" data-set="1" data-field="weight">
-            <div class="flex gap-3 flex-wrap" data-reps="deadlift-1">
-              <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
-              <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
-            </div>
-          </div></div>
-          <div><p class="font-medium mb-3 text-gray-700">SET 2</p><div class="flex items-center gap-4 flex-wrap">
-            <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="deadlift" data-set="2" data-field="weight">
-            <div class="flex gap-3 flex-wrap" data-reps="deadlift-2">
-              <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
-              <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
-            </div>
-          </div></div>
-        </div>
-      </section>
-
       <!-- Pull-ups -->
       <section class="bg-white rounded-2xl shadow-sm p-6">
         <h2 class="text-xl font-bold mb-1">Vertical Pulls</h2>
         <p class="text-sm text-gray-600 mb-5">Pull-ups</p>
         <div class="space-y-8">
-          <div><p class="font-medium mb-3 text-gray-700">SET 1</p><div class="flex items-center gap-4 flex-wrap">
-            <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="pullups" data-set="1" data-field="weight">
-            <div class="flex gap-3 flex-wrap" data-reps="pullups-1">
-              <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
-              <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 1</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="pullups" data-set="1">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="pullups-1">
+                <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
+                <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
+              </div>
             </div>
-          </div></div>
-          <div><p class="font-medium mb-3 text-gray-700">SET 2</p><div class="flex items-center gap-4 flex-wrap">
-            <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="pullups" data-set="2" data-field="weight">
-            <div class="flex gap-3 flex-wrap" data-reps="pullups-2">
-              <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
-              <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
+          </div>
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 2</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="pullups" data-set="2">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="pullups-2">
+                <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
+                <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
+              </div>
             </div>
-          </div></div>
+          </div>
         </div>
       </section>
 
-      <!-- Curls, Skull-crushers, Calf Raises — same pattern (omitted for brevity, but included in full code) -->
-      <!-- Day 2 — all exercises included below -->
+      <!-- Biceps: Curls -->
+      <section class="bg-white rounded-2xl shadow-sm p-6">
+        <h2 class="text-xl font-bold mb-1">Biceps</h2>
+        <p class="text-sm text-gray-600 mb-5">Curls</p>
+        <div class="space-y-8">
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 1</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="curls" data-set="1">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="curls-1">
+                <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
+                <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 2</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="curls" data-set="2">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="curls-2">
+                <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
+                <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Triceps: Skull-crushers -->
+      <section class="bg-white rounded-2xl shadow-sm p-6">
+        <h2 class="text-xl font-bold mb-1">Triceps</h2>
+        <p class="text-sm text-gray-600 mb-5">Skull-crushers</p>
+        <div class="space-y-8">
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 1</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="skullcrushers" data-set="1">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="skullcrushers-1">
+                <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
+                <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 2</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="skullcrushers" data-set="2">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="skullcrushers-2">
+                <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
+                <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Calves: Calf Raises -->
+      <section class="bg-white rounded-2xl shadow-sm p-6">
+        <h2 class="text-xl font-bold mb-1">Calves</h2>
+        <p class="text-sm text-gray-600 mb-5">Calf Raises</p>
+        <div class="space-y-8">
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 1</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="calfraises" data-set="1">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="calfraises-1">
+                <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
+                <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 2</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="calfraises" data-set="2">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="calfraises-2">
+                <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
+                <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
-    <!-- Day 2 (hidden by default) -->
+    <!-- Day 2 -->
     <div id="day2" class="hidden space-y-6">
-      <!-- Same header as Day 1 -->
       <div class="text-center -mt-2 mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Day 2</h1>
         <p class="text-gray-600">Track your weights & reps.</p>
       </div>
+
       <div class="text-center mb-6">
         <span class="bg-blue-100 text-blue-800 px-4 py-1.5 rounded-full text-sm font-bold tracking-wider">| CORE |</span>
       </div>
 
-      <!-- All Day 2 exercises (Bench Press, Seated Press, Cable Rows, Leg Lifts, Cable Pulls) -->
-      <!-- Same structure as above — fully included in the final code -->
+      <!-- Bench Press -->
+      <section class="bg-white rounded-2xl shadow-sm p-6">
+        <h2 class="text-xl font-bold mb-1">Horizontal Pushes</h2>
+        <p class="text-sm text-gray-600 mb-5">Bench Press</p>
+        <div class="space-y-8">
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 1</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="benchpress" data-set="1">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="benchpress-1">
+                <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
+                <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 2</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="benchpress" data-set="2">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="benchpress-2">
+                <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
+                <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Seated Dumbbell Press -->
+      <section class="bg-white rounded-2xl shadow-sm p-6">
+        <h2 class="text-xl font-bold mb-1">Vertical Pushes</h2>
+        <p class="text-sm text-gray-600 mb-5">Seated Dumbbell Press</p>
+        <div class="space-y-8">
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 1</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="seatedpress" data-set="1">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="seatedpress-1">
+                <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
+                <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 2</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="seatedpress" data-set="2">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="seatedpress-2">
+                <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
+                <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cable Rows -->
+      <section class="bg-white rounded-2xl shadow-sm p-6">
+        <h2 class="text-xl font-bold mb-1">Horizontal Pulls</h2>
+        <p class="text-sm text-gray-600 mb-5">Cable Rows</p>
+        <div class="space-y-8">
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 1</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="cablerows" data-set="1">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="cablerows-1">
+                <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
+                <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 2</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="cablerows" data-set="2">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="cablerows-2">
+                <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
+                <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hanging Leg Lifts (reps only) -->
+      <section class="bg-white rounded-2xl shadow-sm p-6">
+        <h2 class="text-xl font-bold mb-1">Abs</h2>
+        <p class="text-sm text-gray-600 mb-5">Hanging Leg Lifts</p>
+        <div class="space-y-8">
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 1</p>
+            <div class="flex gap-3 flex-wrap reps-wrap" data-reps="leglifts-1">
+              <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
+              <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 2</p>
+            <div class="flex gap-3 flex-wrap reps-wrap" data-reps="leglifts-2">
+              <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
+              <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rear Delts: Cable Pulls -->
+      <section class="bg-white rounded-2xl shadow-sm p-6">
+        <h2 class="text-xl font-bold mb-1">Rear Delts</h2>
+        <p class="text-sm text-gray-600 mb-5">Cable Pulls</p>
+        <div class="space-y-8">
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 1</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="cablepulls" data-set="1">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="cablepulls-1">
+                <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
+                <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium mb-3 text-gray-700">SET 2</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="cablepulls" data-set="2">
+              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="cablepulls-2">
+                <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
+                <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- History -->
@@ -159,8 +431,11 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'workoutLogV4';
+    const STORAGE_KEY = 'workoutLogFinal';
     let currentDay = 'day1';
+
+    // chart instances so we can destroy them when re-rendering
+    window._exerciseCharts = window._exerciseCharts || {};
 
     function setTab(tab) {
       document.getElementById('day1').classList.toggle('hidden', tab !== 'day1');
@@ -169,10 +444,12 @@
       document.getElementById('complete-btn').classList.toggle('hidden', tab === 'history');
 
       document.querySelectorAll('button[id^="tab-"]').forEach(b => {
-        const isActive = b.id === `tab-${tab}`;
-        b.className = isActive 
-          ? "flex-1 py-4 font-semibold text-blue-600 border-b-2 border-blue-600"
-          : "flex-1 py-4 font-medium text-gray-500 border-b-2 border-transparent";
+        b.classList.toggle('text-blue-600', b.id === `tab-${tab}`);
+        b.classList.toggle('border-blue-600', b.id === `tab-${tab}`);
+        b.classList.toggle('font-semibold', b.id === `tab-${tab}`);
+        b.classList.toggle('text-gray-500', b.id !== `tab-${tab}`);
+        b.classList.toggle('border-transparent', b.id !== `tab-${tab}`);
+        b.classList.toggle('font-medium', b.id !== `tab-${tab}`);
       });
 
       if (tab !== 'history') {
@@ -181,6 +458,14 @@
       } else {
         renderHistory();
       }
+    }
+
+    // mark recommended rep circles (6-10) visually
+    function markRecommendedReps() {
+      document.querySelectorAll('.rep-circle').forEach(el => {
+        const r = Number(el.dataset.rep);
+        if (!isNaN(r) && r >= 6 && r <= 10) el.classList.add('recommended');
+      });
     }
 
     function loadPreviousWeights() {
@@ -202,19 +487,23 @@
       container.querySelectorAll('.rep-circle').forEach(c => c.classList.toggle('selected', c.dataset.rep == value));
     }
 
+    // click handler to toggle selection of reps
     document.addEventListener('click', e => {
       if (e.target.classList.contains('rep-circle')) {
         const container = e.target.closest('[data-reps]');
+        if (!container) return;
+        // single-select inside the container
         container.querySelectorAll('.rep-circle').forEach(c => c.classList.remove('selected'));
         e.target.classList.add('selected');
       }
     });
 
+    // collects exercise ids used in the UI for saving
+    const EXERCISE_IDS = ['squats','deadlift','pullups','curls','skullcrushers','calfraises','benchpress','seatedpress','cablerows','leglifts','cablepulls'];
+
     function completeWorkout() {
       const data = [];
-      const exercises = ['squats','deadlift','pullups','curls','skullcrushers','calfraises','benchpress','seatedpress','cablerows','leglifts','cablepulls'];
-      
-      exercises.forEach(id => {
+      EXERCISE_IDS.forEach(id => {
         const w1 = document.querySelector(`[data-ex="${id}"][data-set="1"]`)?.value.trim() || null;
         const w2 = document.querySelector(`[data-ex="${id}"][data-set="2"]`)?.value.trim() || null;
         const r1 = document.querySelector(`[data-reps="${id}-1"] .selected`)?.dataset.rep || null;
@@ -222,56 +511,225 @@
         if (w1 || w2 || r1 || r2) data.push({id, set1:{weight:w1,reps:r1}, set2:{weight:w2,reps:r2}});
       });
 
-      if (data.length === 0) return alert("Please log at least one set!");
+      if (data.length === 0) { alert("Add at least one set!"); return; }
 
       const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
       logs.push({day: currentDay, date: new Date().toISOString(), data});
       localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
 
       alert("Workout saved!");
+      // clear inputs
       document.querySelectorAll('input[type=number]').forEach(i => i.value = '');
       document.querySelectorAll('.rep-circle').forEach(c => c.classList.remove('selected'));
       setTab('history');
     }
 
+    // Render history list and charts
     function renderHistory() {
       const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]').reverse();
       const list = document.getElementById('history-list');
-      list.innerHTML = logs.length ? logs.map((log, i) => {
-        const idx = logs.length - 1 - i;
-        const date = new Date(log.date).toLocaleString();
-        const details = log.data.map(ex => {
-          const name = ex.id.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-          const s1 = ex.set1.weight || ex.set1.reps ? `${ex.set1.weight || ''} × ${ex.set1.reps || ''}`.trim() : '-';
-          const s2 = ex.set2.weight || ex.set2.reps ? `${ex.set2.weight || ''} × ${ex.set2.reps || ''}`.trim() : '-';
-          return `<div class="font-medium">${name}</div><div class="text-gray-600">Set 1: ${s1}  Set 2: ${s2}</div>`;
-        }).join('');
+      list.innerHTML = '';
 
-        return `
-          <div class="bg-white rounded-2xl p-5 shadow-sm">
-            <div class="flex justify-between items-start mb-3">
-              <div>
-                <p class="font-bold text-lg">${log.day === 'day1' ? 'Day 1' : 'Day 2'}</p>
-                <p class="text-sm text-gray-600">${date}</p>
-              </div>
-              <button onclick="deleteLog(${idx})" class="text-red-600 text-sm font-medium">Delete</button>
+      if (!logs.length) {
+        list.innerHTML = '<p class="text-center text-gray-500 py-10">No workouts yet</p>';
+        return;
+      }
+
+      // 1) Simple log cards (existing list style)
+      logs.forEach((l, idx) => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-5 shadow-sm';
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-bold text-lg">${l.day==='day1'?'Day 1':'Day 2'}</p>
+              <p class="text-sm text-gray-600">${new Date(l.date).toLocaleString()}</p>
+              <p class="text-xs text-gray-500 mt-1">${l.data.length} exercises</p>
             </div>
-            <div class="history-details">${details}</div>
+            <button data-log-index="${logs.length-1-idx}" class="delete-log text-red-600 text-sm font-medium">Delete</button>
           </div>
         `;
-      }).join('') : '<p class="text-center text-gray-500 py-10">No workouts logged yet</p>';
+        list.appendChild(card);
+      });
+
+      // attach delete handlers
+      list.querySelectorAll('.delete-log').forEach(btn => {
+        btn.addEventListener('click', (ev) => {
+          const i = Number(ev.currentTarget.dataset.logIndex);
+          if (confirm('Delete this workout forever?')) {
+            const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            stored.splice(i,1);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+            renderHistory();
+          }
+        });
+      });
+
+      // 2) Charts per exercise: group logs by exercise id and plot a series
+      renderExerciseCharts(logs.reverse()); // pass oldest->newest for time series
     }
 
-    function deleteLog(i) {
-      if (confirm('Delete this workout permanently?')) {
-        const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        logs.splice(i, 1);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
-        renderHistory();
-      }
+    // Build grouped series and render Chart.js charts for each exercise that has data
+    function renderExerciseCharts(logsOldToNew) {
+      // destroy existing charts
+      Object.values(window._exerciseCharts).forEach(c => c.destroy?.());
+      window._exerciseCharts = {};
+
+      // Group by exercise id
+      const grouped = {}; // id -> {labels:[], weights:[], reps:[]}
+      logsOldToNew.forEach(log => {
+        const t = new Date(log.date);
+        const label = t.toLocaleDateString();
+        // for each exercise entry in that log
+        log.data.forEach(ex => {
+          const id = ex.id;
+          // pick a representative weight/reps for that session/exercise:
+          // - weight: use first non-empty of set1.weight, set2.weight
+          // - reps: use first non-empty of set1.reps, set2.reps
+          const weightRaw = (ex.set1?.weight && ex.set1.weight.trim()) ? ex.set1.weight.trim() : ((ex.set2?.weight && ex.set2.weight.trim()) ? ex.set2.weight.trim() : null);
+          const repsRaw = (ex.set1?.reps) ? ex.set1.reps : ((ex.set2?.reps) ? ex.set2.reps : null);
+          const weight = weightRaw ? Number(weightRaw) : null;
+          const reps = repsRaw ? Number(repsRaw) : null;
+
+          if (!grouped[id]) grouped[id] = {labels: [], weights: [], reps: []};
+
+          grouped[id].labels.push(label);
+          grouped[id].weights.push(weight);
+          grouped[id].reps.push(reps);
+        });
+      });
+
+      // Append a charts area after the list
+      const wrapper = document.createElement('div');
+      wrapper.className = 'space-y-6 mt-6';
+      const title = document.createElement('h3');
+      title.className = 'text-lg font-bold';
+      title.textContent = 'Exercise progress';
+      wrapper.appendChild(title);
+
+      // For each exercise group, create canvas and draw chart
+      Object.entries(grouped).forEach(([id, series]) => {
+        // Skip empty series
+        const hasAny = series.weights.some(x => x !== null) || series.reps.some(x => x !== null);
+        if (!hasAny) return;
+
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-4 shadow-sm';
+
+        const header = document.createElement('div');
+        header.className = 'flex items-center justify-between';
+        const name = document.createElement('div');
+        name.innerHTML = `<p class="font-semibold">${formatExerciseId(id)}</p><p class="text-xs text-gray-500">${series.labels.length} points</p>`;
+        header.appendChild(name);
+
+        card.appendChild(header);
+
+        const canvas = document.createElement('canvas');
+        canvas.id = `chart-${id}`;
+        canvas.className = 'history-chart';
+        card.appendChild(canvas);
+
+        wrapper.appendChild(card);
+
+        // create chart: weights (left axis) and reps (right axis)
+        const ctx = canvas.getContext('2d');
+        // prepare cleaned numeric arrays for Chart.js (nulls will produce gaps)
+        const weightData = series.weights.map(v => v === null ? null : v);
+        const repsData = series.reps.map(v => v === null ? null : v);
+
+        const chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: series.labels,
+            datasets: [
+              {
+                label: 'Weight',
+                data: weightData,
+                yAxisID: 'y',
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37,99,235,0.08)',
+                tension: 0.3,
+                spanGaps: true,
+                pointRadius: 4
+              },
+              {
+                label: 'Reps',
+                data: repsData,
+                yAxisID: 'y1',
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16,185,129,0.08)',
+                tension: 0.3,
+                spanGaps: true,
+                pointRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: { legend: { position: 'top' } },
+            scales: {
+              x: { ticks: { maxRotation: 0, autoSkip: true } },
+              y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: { display: true, text: 'Weight' }
+              },
+              y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                grid: { drawOnChartArea: false },
+                title: { display: true, text: 'Reps' }
+              }
+            }
+          }
+        });
+
+        window._exerciseCharts[id] = chart;
+      });
+
+      // insert wrapper after the history header/list
+      const listContainer = document.getElementById('history-list');
+      listContainer.appendChild(wrapper);
     }
 
+    // Pretty label conversion for exercise id -> display
+    function formatExerciseId(id) {
+      return {
+        squats: 'Squats',
+        deadlift: 'Deadlift',
+        pullups: 'Pull-ups',
+        curls: 'Biceps Curls',
+        skullcrushers: 'Skull-crushers',
+        calfraises: 'Calf Raises',
+        benchpress: 'Bench Press',
+        seatedpress: 'Seated DB Press',
+        cablerows: 'Cable Rows',
+        leglifts: 'Hanging Leg Lifts',
+        cablepulls: 'Cable Pulls'
+      }[id] || id;
+    }
+
+    // initial setup
+    markRecommendedReps();
     setTab('day1');
+
+    // add keyboard accessibility: allow Enter/Space on rep-circle
+    document.addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && document.activeElement?.classList?.contains('rep-circle')) {
+        document.activeElement.click();
+        e.preventDefault();
+      }
+    });
+
+    // make rep circles focusable
+    document.querySelectorAll('.rep-circle').forEach(el => {
+      el.setAttribute('tabindex', '0');
+      // highlight recommended visually was already applied by markRecommendedReps()
+    });
   </script>
 </body>
 </html>
