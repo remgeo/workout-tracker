@@ -10,25 +10,26 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    /* Rep circles styling (explicit CSS so it works without @apply) */
+    /* Smaller rep circles and compact layout so they fit beside the weight input */
     .rep-circle {
-      width: 44px;
-      height: 44px;
+      width: 36px;
+      height: 36px;
       border-radius: 9999px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.18s ease;
+      transition: all 0.14s ease;
       border: 2px solid #e5e7eb;
       background: #f3f4f6;
       color: #9ca3af;
       user-select: none;
+      line-height: 1;
     }
 
-    /* Slight hover state for non-selected */
+    /* Hover state for non-selected */
     .rep-circle:hover:not(.selected) {
       border-color: #60a5fa;
       background: #eff6ff;
@@ -41,27 +42,28 @@
       background: #ffffff;
       color: #111827; /* dark number */
       border-color: #60a5fa;
-      box-shadow: 0 0 0 8px rgba(96,165,250,0.12);
-      transform: scale(1.03);
+      box-shadow: 0 0 0 6px rgba(96,165,250,0.10);
+      transform: scale(1.02);
     }
 
-    /* Recommended rep numbers (visually a bit bolder by default) */
+    /* Recommended rep numbers have a slightly bolder appearance */
     .rep-circle.recommended {
       font-weight: 700;
       color: #374151;
     }
 
-    /* Tiny layout helpers used elsewhere */
-    .rep-row { display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; }
-    .reps-wrap { display:flex; gap:0.5rem; flex-wrap:wrap; }
+    /* Reduce spacing so circles sit on same visual line as the weight field */
+    .reps-wrap { display:flex; gap:0.4rem; flex-wrap:wrap; align-items:center; }
 
-    /* Small tweaks to chart containers */
+    /* Chart container made smaller and limited height for faster rendering */
     .history-chart {
       width: 100%;
-      max-width: 560px;
-      height: 220px;
+      height: 140px; /* smaller than before */
       margin-top: 10px;
     }
+
+    /* small layout helpers */
+    .rep-row { display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; }
   </style>
 </head>
 <body class="min-h-screen bg-gray-50">
@@ -96,7 +98,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 1</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" data-ex="squats" data-set="1">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="squats-1">
+              <div class="reps-wrap" data-reps="squats-1">
                 <div class="rep-circle" data-rep="4">4</div>
                 <div class="rep-circle" data-rep="5">5</div>
                 <div class="rep-circle" data-rep="6">6</div>
@@ -111,7 +113,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 2</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" data-ex="squats" data-set="2">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="squats-2">
+              <div class="reps-wrap" data-reps="squats-2">
                 <div class="rep-circle" data-rep="6">6</div>
                 <div class="rep-circle" data-rep="7">7</div>
                 <div class="rep-circle" data-rep="8">8</div>
@@ -134,7 +136,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 1</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="deadlift" data-set="1">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="deadlift-1">
+              <div class="reps-wrap" data-reps="deadlift-1">
                 <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
                 <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
               </div>
@@ -144,7 +146,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 2</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="deadlift" data-set="2">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="deadlift-2">
+              <div class="reps-wrap" data-reps="deadlift-2">
                 <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
                 <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
               </div>
@@ -162,7 +164,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 1</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="pullups" data-set="1">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="pullups-1">
+              <div class="reps-wrap" data-reps="pullups-1">
                 <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
                 <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
               </div>
@@ -172,7 +174,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 2</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="pullups" data-set="2">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="pullups-2">
+              <div class="reps-wrap" data-reps="pullups-2">
                 <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
                 <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
               </div>
@@ -190,7 +192,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 1</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="curls" data-set="1">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="curls-1">
+              <div class="reps-wrap" data-reps="curls-1">
                 <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
                 <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
               </div>
@@ -200,7 +202,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 2</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="curls" data-set="2">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="curls-2">
+              <div class="reps-wrap" data-reps="curls-2">
                 <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
                 <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
               </div>
@@ -218,7 +220,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 1</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="skullcrushers" data-set="1">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="skullcrushers-1">
+              <div class="reps-wrap" data-reps="skullcrushers-1">
                 <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
                 <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
               </div>
@@ -228,7 +230,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 2</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="skullcrushers" data-set="2">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="skullcrushers-2">
+              <div class="reps-wrap" data-reps="skullcrushers-2">
                 <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
                 <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
               </div>
@@ -246,7 +248,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 1</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="calfraises" data-set="1">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="calfraises-1">
+              <div class="reps-wrap" data-reps="calfraises-1">
                 <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
                 <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
               </div>
@@ -256,7 +258,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 2</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="calfraises" data-set="2">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="calfraises-2">
+              <div class="reps-wrap" data-reps="calfraises-2">
                 <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
                 <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
               </div>
@@ -266,7 +268,7 @@
       </section>
     </div>
 
-    <!-- Day 2 -->
+    <!-- Day 2 (unchanged layout) -->
     <div id="day2" class="hidden space-y-6">
       <div class="text-center -mt-2 mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Day 2</h1>
@@ -286,7 +288,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 1</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="benchpress" data-set="1">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="benchpress-1">
+              <div class="reps-wrap" data-reps="benchpress-1">
                 <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
                 <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
               </div>
@@ -296,7 +298,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 2</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="benchpress" data-set="2">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="benchpress-2">
+              <div class="reps-wrap" data-reps="benchpress-2">
                 <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
                 <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
               </div>
@@ -314,7 +316,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 1</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="seatedpress" data-set="1">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="seatedpress-1">
+              <div class="reps-wrap" data-reps="seatedpress-1">
                 <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
                 <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
               </div>
@@ -324,7 +326,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 2</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="seatedpress" data-set="2">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="seatedpress-2">
+              <div class="reps-wrap" data-reps="seatedpress-2">
                 <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
                 <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
               </div>
@@ -342,7 +344,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 1</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="cablerows" data-set="1">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="cablerows-1">
+              <div class="reps-wrap" data-reps="cablerows-1">
                 <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
                 <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
               </div>
@@ -352,7 +354,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 2</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="cablerows" data-set="2">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="cablerows-2">
+              <div class="reps-wrap" data-reps="cablerows-2">
                 <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
                 <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
               </div>
@@ -368,14 +370,14 @@
         <div class="space-y-8">
           <div>
             <p class="font-medium mb-3 text-gray-700">SET 1</p>
-            <div class="flex gap-3 flex-wrap reps-wrap" data-reps="leglifts-1">
+            <div class="reps-wrap" data-reps="leglifts-1">
               <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
               <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
             </div>
           </div>
           <div>
             <p class="font-medium mb-3 text-gray-700">SET 2</p>
-            <div class="flex gap-3 flex-wrap reps-wrap" data-reps="leglifts-2">
+            <div class="reps-wrap" data-reps="leglifts-2">
               <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
               <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
             </div>
@@ -392,7 +394,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 1</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="cablepulls" data-set="1">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="cablepulls-1">
+              <div class="reps-wrap" data-reps="cablepulls-1">
                 <div class="rep-circle" data-rep="4">4</div><div class="rep-circle" data-rep="5">5</div><div class="rep-circle" data-rep="6">6</div>
                 <div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div><div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div>
               </div>
@@ -402,7 +404,7 @@
             <p class="font-medium mb-3 text-gray-700">SET 2</p>
             <div class="flex items-center gap-4 flex-wrap">
               <input type="number" placeholder="lbs" class="w-28 px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" data-ex="cablepulls" data-set="2">
-              <div class="flex gap-3 flex-wrap reps-wrap" data-reps="cablepulls-2">
+              <div class="reps-wrap" data-reps="cablepulls-2">
                 <div class="rep-circle" data-rep="6">6</div><div class="rep-circle" data-rep="7">7</div><div class="rep-circle" data-rep="8">8</div>
                 <div class="rep-circle" data-rep="9">9</div><div class="rep-circle" data-rep="10">10</div><div class="rep-circle" data-rep="11">11</div><div class="rep-circle" data-rep="12">12</div>
               </div>
@@ -460,11 +462,29 @@
       }
     }
 
-    // mark recommended rep circles (6-10) visually
+    // mark recommended reps per set:
+    // - Set 1 (container ending with -1): recommended 6..8
+    // - Set 2 (container ending with -2): recommended 8..10
+    // - fallback: 6..10
     function markRecommendedReps() {
-      document.querySelectorAll('.rep-circle').forEach(el => {
-        const r = Number(el.dataset.rep);
-        if (!isNaN(r) && r >= 6 && r <= 10) el.classList.add('recommended');
+      // clear previous recommended classes and reapply per container
+      document.querySelectorAll('[data-reps]').forEach(container => {
+        const containerId = container.dataset.reps || '';
+        const isSet1 = containerId.endsWith('-1');
+        const isSet2 = containerId.endsWith('-2');
+
+        container.querySelectorAll('.rep-circle').forEach(el => {
+          el.classList.remove('recommended');
+          const r = Number(el.dataset.rep);
+          if (isSet1) {
+            if (!isNaN(r) && r >= 6 && r <= 8) el.classList.add('recommended');
+          } else if (isSet2) {
+            if (!isNaN(r) && r >= 8 && r <= 10) el.classList.add('recommended');
+          } else {
+            // fallback
+            if (!isNaN(r) && r >= 6 && r <= 10) el.classList.add('recommended');
+          }
+        });
       });
     }
 
@@ -487,12 +507,11 @@
       container.querySelectorAll('.rep-circle').forEach(c => c.classList.toggle('selected', c.dataset.rep == value));
     }
 
-    // click handler to toggle selection of reps
+    // click handler to toggle selection of reps (single-select per container)
     document.addEventListener('click', e => {
       if (e.target.classList.contains('rep-circle')) {
         const container = e.target.closest('[data-reps]');
         if (!container) return;
-        // single-select inside the container
         container.querySelectorAll('.rep-circle').forEach(c => c.classList.remove('selected'));
         e.target.classList.add('selected');
       }
@@ -524,7 +543,7 @@
       setTab('history');
     }
 
-    // Render history list and charts
+    // Render history list and charts (simplified & faster)
     function renderHistory() {
       const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]').reverse();
       const list = document.getElementById('history-list');
@@ -535,7 +554,7 @@
         return;
       }
 
-      // 1) Simple log cards (existing list style)
+      // simple log cards
       logs.forEach((l, idx) => {
         const card = document.createElement('div');
         card.className = 'bg-white rounded-2xl p-5 shadow-sm';
@@ -552,7 +571,6 @@
         list.appendChild(card);
       });
 
-      // attach delete handlers
       list.querySelectorAll('.delete-log').forEach(btn => {
         btn.addEventListener('click', (ev) => {
           const i = Number(ev.currentTarget.dataset.logIndex);
@@ -565,11 +583,16 @@
         });
       });
 
-      // 2) Charts per exercise: group logs by exercise id and plot a series
-      renderExerciseCharts(logs.reverse()); // pass oldest->newest for time series
+      // Charting: group and render but limit points and make charts compact
+      renderExerciseCharts(logs.reverse()); // oldest -> newest
     }
 
-    // Build grouped series and render Chart.js charts for each exercise that has data
+    // Build grouped series and render Chart.js charts for each exercise
+    // Simplifications applied:
+    // - Limit to last MAX_POINTS points per exercise (reduces processing & visual clutter)
+    // - Use compact chart height (CSS)
+    const MAX_POINTS = 8; // keep the most recent 8 sessions per exercise
+
     function renderExerciseCharts(logsOldToNew) {
       // destroy existing charts
       Object.values(window._exerciseCharts).forEach(c => c.destroy?.());
@@ -580,37 +603,40 @@
       logsOldToNew.forEach(log => {
         const t = new Date(log.date);
         const label = t.toLocaleDateString();
-        // for each exercise entry in that log
         log.data.forEach(ex => {
           const id = ex.id;
-          // pick a representative weight/reps for that session/exercise:
-          // - weight: use first non-empty of set1.weight, set2.weight
-          // - reps: use first non-empty of set1.reps, set2.reps
           const weightRaw = (ex.set1?.weight && ex.set1.weight.trim()) ? ex.set1.weight.trim() : ((ex.set2?.weight && ex.set2.weight.trim()) ? ex.set2.weight.trim() : null);
           const repsRaw = (ex.set1?.reps) ? ex.set1.reps : ((ex.set2?.reps) ? ex.set2.reps : null);
           const weight = weightRaw ? Number(weightRaw) : null;
           const reps = repsRaw ? Number(repsRaw) : null;
 
           if (!grouped[id]) grouped[id] = {labels: [], weights: [], reps: []};
-
           grouped[id].labels.push(label);
           grouped[id].weights.push(weight);
           grouped[id].reps.push(reps);
         });
       });
 
-      // Append a charts area after the list
+      // create compact charts container
       const wrapper = document.createElement('div');
-      wrapper.className = 'space-y-6 mt-6';
+      wrapper.className = 'space-y-4 mt-6';
       const title = document.createElement('h3');
       title.className = 'text-lg font-bold';
-      title.textContent = 'Exercise progress';
+      title.textContent = 'Exercise progress (last ' + MAX_POINTS + ' sessions)';
       wrapper.appendChild(title);
 
-      // For each exercise group, create canvas and draw chart
+      // For each exercise group, render a compact chart but limit points
       Object.entries(grouped).forEach(([id, series]) => {
-        // Skip empty series
-        const hasAny = series.weights.some(x => x !== null) || series.reps.some(x => x !== null);
+        // Take last MAX_POINTS entries
+        const L = series.labels.length;
+        if (L === 0) return;
+        const start = Math.max(0, L - MAX_POINTS);
+        const labels = series.labels.slice(start);
+        const weights = series.weights.slice(start);
+        const reps = series.reps.slice(start);
+
+        // Skip exercises with no numeric data
+        const hasAny = weights.some(x => x !== null) || reps.some(x => x !== null);
         if (!hasAny) return;
 
         const card = document.createElement('div');
@@ -619,48 +645,45 @@
         const header = document.createElement('div');
         header.className = 'flex items-center justify-between';
         const name = document.createElement('div');
-        name.innerHTML = `<p class="font-semibold">${formatExerciseId(id)}</p><p class="text-xs text-gray-500">${series.labels.length} points</p>`;
+        name.innerHTML = `<p class="font-semibold">${formatExerciseId(id)}</p><p class="text-xs text-gray-500">${labels.length} points</p>`;
         header.appendChild(name);
-
         card.appendChild(header);
 
         const canvas = document.createElement('canvas');
         canvas.id = `chart-${id}`;
         canvas.className = 'history-chart';
         card.appendChild(canvas);
-
         wrapper.appendChild(card);
 
-        // create chart: weights (left axis) and reps (right axis)
         const ctx = canvas.getContext('2d');
-        // prepare cleaned numeric arrays for Chart.js (nulls will produce gaps)
-        const weightData = series.weights.map(v => v === null ? null : v);
-        const repsData = series.reps.map(v => v === null ? null : v);
 
+        // create smaller, faster line chart: fewer points, smaller point radius
         const chart = new Chart(ctx, {
           type: 'line',
           data: {
-            labels: series.labels,
+            labels,
             datasets: [
               {
                 label: 'Weight',
-                data: weightData,
+                data: weights,
                 yAxisID: 'y',
                 borderColor: '#2563eb',
                 backgroundColor: 'rgba(37,99,235,0.08)',
                 tension: 0.3,
                 spanGaps: true,
-                pointRadius: 4
+                pointRadius: 2,
+                pointHoverRadius: 4
               },
               {
                 label: 'Reps',
-                data: repsData,
+                data: reps,
                 yAxisID: 'y1',
                 borderColor: '#10b981',
                 backgroundColor: 'rgba(16,185,129,0.08)',
                 tension: 0.3,
                 spanGaps: true,
-                pointRadius: 4
+                pointRadius: 2,
+                pointHoverRadius: 4
               }
             ]
           },
@@ -671,19 +694,8 @@
             plugins: { legend: { position: 'top' } },
             scales: {
               x: { ticks: { maxRotation: 0, autoSkip: true } },
-              y: {
-                type: 'linear',
-                display: true,
-                position: 'left',
-                title: { display: true, text: 'Weight' }
-              },
-              y1: {
-                type: 'linear',
-                display: true,
-                position: 'right',
-                grid: { drawOnChartArea: false },
-                title: { display: true, text: 'Reps' }
-              }
+              y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Weight' } },
+              y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Reps' } }
             }
           }
         });
@@ -691,9 +703,14 @@
         window._exerciseCharts[id] = chart;
       });
 
-      // insert wrapper after the history header/list
       const listContainer = document.getElementById('history-list');
-      listContainer.appendChild(wrapper);
+      // remove existing chart area (if any) then append new wrapper
+      const existingChartArea = listContainer.querySelector('.exercise-chart-area');
+      if (existingChartArea) existingChartArea.remove();
+      const chartArea = document.createElement('div');
+      chartArea.className = 'exercise-chart-area';
+      chartArea.appendChild(wrapper);
+      listContainer.appendChild(chartArea);
     }
 
     // Pretty label conversion for exercise id -> display
@@ -717,7 +734,7 @@
     markRecommendedReps();
     setTab('day1');
 
-    // add keyboard accessibility: allow Enter/Space on rep-circle
+    // keyboard accessibility for rep circles
     document.addEventListener('keydown', (e) => {
       if ((e.key === 'Enter' || e.key === ' ') && document.activeElement?.classList?.contains('rep-circle')) {
         document.activeElement.click();
@@ -728,8 +745,10 @@
     // make rep circles focusable
     document.querySelectorAll('.rep-circle').forEach(el => {
       el.setAttribute('tabindex', '0');
-      // highlight recommended visually was already applied by markRecommendedReps()
     });
+
+    // re-run recommended marking after DOM changes (if any)
+    // For now the DOM is static; if you dynamically add reps later, call markRecommendedReps()
   </script>
 </body>
 </html>
